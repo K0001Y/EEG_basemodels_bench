@@ -19,7 +19,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from PEFT_engine.utils import set_seed, load_config, count_parameters, log_print, setup_logger
 from PEFT_engine.models import CBraModAdapter, LaBraMAdapter
-from PEFT_engine.datasets import CHBMITDataset, SienaDataset
+from PEFT_engine.datasets import CHBMITDataset, SienaDataset, TUSZDataset
 from PEFT_engine.trainer import Trainer
 
 
@@ -38,6 +38,8 @@ def get_dataset(config: dict, project_root: str):
         dataset = CHBMITDataset(dataset_cfg, model_name, project_root, train_cfg)
     elif dataset_name == "siena":
         dataset = SienaDataset(dataset_cfg, model_name, project_root, train_cfg)
+    elif dataset_name == "tusz":
+        dataset = TUSZDataset(dataset_cfg, model_name, project_root, train_cfg)
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 

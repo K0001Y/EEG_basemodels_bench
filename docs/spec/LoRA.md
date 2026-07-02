@@ -49,10 +49,12 @@ PEFT_engine/
 ├── configs/                        # YAML 配置文件（见 §13 实验矩阵）
 │   ├── cbramod_chbmit_schemeA.yaml   # P0: 时间增强自研
 │   ├── cbramod_siena_schemeA.yaml    # P0: 时间增强自研
+│   ├── cbramod_tusz_schemeA.yaml     # P0: TUSZ 时间增强自研
 │   ├── cbramod_chbmit_schemeC.yaml   # P1: FFN-only 消融
 │   ├── cbramod_chbmit_schemeB.yaml   # P2: QKV 拆分 PEFT
 │   ├── labram_chbmit_schemeB.yaml   # P0: 深层增强分层
 │   ├── labram_siena_schemeC.yaml     # P0: 注意力+LayerScale
+│   ├── labram_tusz_schemeB.yaml      # P0: TUSZ 深层增强分层
 │   ├── labram_chbmit_schemeA.yaml     # P1: 标准 PEFT 消融
 │   ├── labram_siena_schemeA.yaml      # P1: 标准 PEFT 消融
 │   ├── cbramod_chbmit_full.yaml       # 对照: 全量微调
@@ -71,12 +73,14 @@ PEFT_engine/
 │   ├── __init__.py
 │   ├── base_dataset.py            # 抽象数据集接口
 │   ├── chbmit_dataset.py          # CHB-MIT 数据集
-│   └── siena_dataset.py           # Siena 数据集
+│   ├── siena_dataset.py           # Siena 数据集
+│   └── tusz_dataset.py            # TUSZ 数据集
 ├── losses.py                       # 损失函数（FocalLoss / WeightedBCE）
 ├── augmentation.py                  # EEG 数据增强（时间平移/通道丢弃/噪声）
 ├── preprocessing/                  # 离线预处理脚本（独立于训练）
 │   ├── preprocess_chbmit.py       # CHB-MIT EDF → pickle 分段
-│   └── preprocess_siena.py        # Siena EDF → pickle 分段
+│   ├── preprocess_siena.py        # Siena EDF → pickle 分段
+│   └── preprocess_tusz.py         # TUSZ EDF → pickle 分段（参考电极→双极导联）
 ├── trainer.py                      # 训练器（训练循环 + checkpoint + resume + 阈值优化）
 ├── evaluator.py                    # 评估器（segment-level 指标）
 ├── utils.py                        # 工具函数（日志、seed、IO）
@@ -129,7 +133,40 @@ PEFT_engine/
 
 类似流程，输出到 `datas/Siena/processed/{train,val,test}/`。
 
-### 4.5 模型适配 Reshape（在 Dataset 内完成）
+### 4.5 TUSZ 预处理
+
+**数据来源**：TUH EEG Seizure Corpus v2.0.6（`datas/tusz_v2.0.6/`）
+
+**数据特点**：
+- 采样率不统一：LE 导联 250Hz，AR 导联 400Hz；预处理时统一重采样至 256Hz
+- 通道为参考电极格式（`EEG FP1-LE`、`EEG F7-REF`），需计算 16 路双极导联
+- 标注文件为 `.csv_bi`（二分类：`seiz`/`bckg`）或 `.csv`（多类发作类型，统一视为正类）
+- 原始划分：`train`(579 患者) / `dev`(53 患者) / `eval`(43 患者)，映射为 `train`/`val`/`test`
+
+**双极导联映射**（从参考电极计算，兼容新旧命名 T3=T7, T4=T8, T5=P7, T6=P8）：
+
+| # | 双极导联 | 计算方式 |
+|---|---------|---------|
+| 0 | FP1-F7 | EEG FP1 − EEG F7 |
+| 1 | F7-T7 | EEG F7 − EEG T3 |
+| 2 | T7-P7 | EEG T3 − EEG T5 |
+| 3 | P7-O1 | EEG T5 − EEG O1 |
+| 4 | FP2-F8 | EEG FP2 − EEG F8 |
+| 5 | F8-T8 | EEG F8 − EEG T4 |
+| 6 | T8-P8 | EEG T4 − EEG T6 |
+| 7 | P8-O2 | EEG T6 − EEG O2 |
+| 8 | FP1-F3 | EEG FP1 − EEG F3 |
+| 9 | F3-C3 | EEG F3 − EEG C3 |
+| 10 | C3-P3 | EEG C3 − EEG P3 |
+| 11 | P3-O1 | EEG P3 − EEG O1 |
+| 12 | FP2-F4 | EEG FP2 − EEG F4 |
+| 13 | F4-C4 | EEG F4 − EEG C4 |
+| 14 | C4-P4 | EEG C4 − EEG P4 |
+| 15 | P4-O2 | EEG P4 − EEG O2 |
+
+**输出目录**：`datas/TUSZ/processed/{train,val,test}/`
+
+### 4.6 模型适配 Reshape（在 Dataset 内完成）
 
 不同模型对同一中间格式做不同的 reshape：
 
@@ -723,8 +760,10 @@ python PEFT_engine/main.py --config PEFT_engine/configs/cbramod_chbmit_schemeA.y
 |--------|------|--------|------|--------|----------|-----------|------|
 | P0 | CBraMod | CHB-MIT | A | t=16, s=8, ffn=8 | `cbramod_chbmit_schemeA.yaml` | 3.8% | 主实验 |
 | P0 | CBraMod | Siena | A | t=16, s=8, ffn=8 | `cbramod_siena_schemeA.yaml` | 3.8% | 主实验 |
+| P0 | CBraMod | TUSZ | A | t=16, s=8, ffn=8 | `cbramod_tusz_schemeA.yaml` | 3.8% | TUSZ 主实验 |
 | P0 | LaBraM | CHB-MIT | B | 0-3:4, 4-7:8, 8-11:16 | `labram_chbmit_schemeB.yaml` | 4.2% | 主实验 |
 | P0 | LaBraM | Siena | C | attn=16 + LS | `labram_siena_schemeC.yaml` | 2.7% | 主实验 |
+| P0 | LaBraM | TUSZ | B | 0-3:4, 4-7:8, 8-11:16 | `labram_tusz_schemeB.yaml` | 4.2% | TUSZ 主实验 |
 | P1 | CBraMod | CHB-MIT | C | ffn=16 | `cbramod_chbmit_schemeC.yaml` | 3.9% | 消融：FFN-only 下限 |
 | P1 | LaBraM | CHB-MIT | A | 8 | `labram_chbmit_schemeA.yaml` | 3.6% | 消融：标准 vs 分层 |
 | P1 | LaBraM | Siena | A | 8 | `labram_siena_schemeA.yaml` | 3.6% | 消融：标准 vs Attn+LS |
@@ -756,7 +795,6 @@ python PEFT_engine/main.py --config PEFT_engine/configs/cbramod_chbmit_schemeA.y
 
 以下功能不在本次实现范围内，但代码架构应预留接口：
 
-1. **TUSZ 数据集**：待数据获取后实现新的 `Dataset` 子类
-2. **其他 PEFT 方法**（AdaLoRA、Prefix Tuning、BitFit）：通过扩展 `apply_lora` 方法支持
-3. **多 GPU 分布式训练**：LaBraM 原生支持 DDP，后续可集成
-4. **SzCORE Docker 容器化**：最终评估阶段封装
+1. **其他 PEFT 方法**（AdaLoRA、Prefix Tuning、BitFit）：通过扩展 `apply_lora` 方法支持
+2. **多 GPU 分布式训练**：LaBraM 原生支持 DDP，后续可集成
+3. **SzCORE Docker 容器化**：最终评估阶段封装
