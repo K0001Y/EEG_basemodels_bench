@@ -1,0 +1,19 @@
+# PEFT 微调实验任务清单
+
+## 1. CBraMod
+
+- [ ] CHB-MIT 数据集
+  - [ ] LoRA 微调
+- [ ] Siena 数据集
+  - [ ] LoRA 微调
+- [ ] TUSZ 数据集
+  - [ ] LoRA 微调
+
+## 2. LaBraM
+
+- [ ] CHB-MIT 数据集
+  - [ ] LoRA 微调
+- [ ] Siena 数据集
+  - [ ] LoRA 微调
+- [ ] TUSZ 数据集
+  - [ ] LoRA 微调

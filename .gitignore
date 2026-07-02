@@ -1,3 +1,10 @@
 .DS_Store
 __pycache__/
 *.pyc
+datas/
+
+# CBraMod pretrained weights
+external/models/CBraMod-main/pretrained_weights/*
+!external/models/CBraMod-main/pretrained_weights/README.md
+!external/models/CBraMod-main/pretrained_weights/download_weights.sh
+!external/models/CBraMod-main/pretrained_weights/.gitignore
