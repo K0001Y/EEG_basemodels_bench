@@ -1,0 +1,54 @@
+# CBraMod CHB-MIT Scheme C (P1 消融: FFN-only + 增强训练)
+# 仅对 FFN (linear1/linear2) 挂载 LoRA, 注意力完全冻结
+
+model:
+  name: cbramod
+  pretrained_weights: external/models/CBraMod-main/pretrained_weights/pretrained_weights.pth
+  classifier: all_patch_reps
+  d_model: 200
+  dim_feedforward: 800
+  n_layer: 12
+  nhead: 8
+  dropout: 0.1
+
+lora:
+  type: peft
+  scheme: C
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.1
+  target_modules: ["linear1", "linear2"]
+  bias: "none"
+  modules_to_save: ["classifier"]
+
+dataset:
+  name: chbmit
+  processed_data_dir: datas/CHB-MIT/processed
+  num_classes: 1
+  task_type: binary
+
+train:
+  epochs: 50
+  batch_size: 64
+  learning_rate: 0.00005
+  head_learning_rate: 0.001
+  weight_decay: 0.05
+  warmup_epochs: 5
+  label_smoothing: 0.1
+  grad_clip: 1.0
+  save_ckpt_freq: 10
+  early_stopping_patience: 10
+  seed: 3407
+  num_workers: 8
+  loss_type: "focal"
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  sampler: "oversample"
+  oversample_factor: 2.0
+  threshold_optimization: true
+  augment_time_shift: 2.0
+  augment_channel_dropout: 0.15
+  augment_noise_std: 0.01
+
+output:
+  dir: results/cbramod_chbmit_schemeC

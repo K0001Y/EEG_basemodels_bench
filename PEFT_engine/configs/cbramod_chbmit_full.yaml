@@ -1,0 +1,46 @@
+# CBraMod CHB-MIT Full Fine-tuning (对照组: 全量微调)
+# lora: null — 所有参数可训练, 上界参考
+
+model:
+  name: cbramod
+  pretrained_weights: external/models/CBraMod-main/pretrained_weights/pretrained_weights.pth
+  classifier: all_patch_reps
+  d_model: 200
+  dim_feedforward: 800
+  n_layer: 12
+  nhead: 8
+  dropout: 0.1
+
+lora: null
+
+dataset:
+  name: chbmit
+  processed_data_dir: datas/CHB-MIT/processed
+  num_classes: 1
+  task_type: binary
+
+train:
+  epochs: 50
+  batch_size: 64
+  learning_rate: 0.0001
+  head_learning_rate: 0.001
+  weight_decay: 0.05
+  warmup_epochs: 5
+  label_smoothing: 0.1
+  grad_clip: 1.0
+  save_ckpt_freq: 10
+  early_stopping_patience: 10
+  seed: 3407
+  num_workers: 8
+  loss_type: "focal"
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  sampler: "weighted"
+  oversample_factor: 1.0
+  threshold_optimization: true
+  augment_time_shift: 1.0
+  augment_channel_dropout: 0.1
+  augment_noise_std: 0.01
+
+output:
+  dir: results/cbramod_chbmit_full

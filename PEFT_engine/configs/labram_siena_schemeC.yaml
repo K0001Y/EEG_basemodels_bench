@@ -1,0 +1,56 @@
+# LaBraM Siena Scheme C (P0 主实验: 注意力 + LayerScale)
+# 仅注意力 (qkv+proj) r=16 + 解冻 gamma_1/gamma_2, 适合小数据集
+
+model:
+  name: labram
+  pretrained_weights: external/models/LaBraM-main/pretrained_weights/labram_base.pth
+  embed_dim: 200
+  depth: 12
+  num_heads: 10
+  mlp_ratio: 4
+  patch_size: 200
+  use_abs_pos_emb: false
+  init_values: 0.1
+  num_classes: 1
+
+lora:
+  type: peft
+  scheme: C
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.1
+  target_modules: ["qkv", "proj"]
+  bias: "none"
+  modules_to_save: ["head", "gamma_1", "gamma_2"]
+
+dataset:
+  name: siena
+  processed_data_dir: datas/Siena/processed
+  num_classes: 1
+  task_type: binary
+
+train:
+  epochs: 50
+  batch_size: 64
+  learning_rate: 0.00005
+  head_learning_rate: 0.001
+  weight_decay: 0.05
+  warmup_epochs: 5
+  label_smoothing: 0.1
+  grad_clip: 1.0
+  save_ckpt_freq: 10
+  early_stopping_patience: 10
+  seed: 3407
+  num_workers: 8
+  loss_type: "focal"
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  sampler: "weighted"
+  oversample_factor: 1.0
+  threshold_optimization: true
+  augment_time_shift: 1.0
+  augment_channel_dropout: 0.1
+  augment_noise_std: 0.01
+
+output:
+  dir: results/labram_siena_schemeC
