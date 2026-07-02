@@ -1,0 +1,17 @@
+{{ $pages := where .Site.Pages "Path" "in" (slice "/framework" "/tools" "/benchmark") }}
+
+<div class="grid grid-cols-3 place-content-center gap-4">
+{{ range $pages }}
+        <div><h2 class="text-center"><a href="{{ .RelPermalink }}">{{trim .Path "/" | title }}</a></h2></div>
+{{ end }}
+</div>
+<div class="grid grid-cols-3 place-content-center gap-4">
+{{ range $pages }}
+    <div><a href="{{ .RelPermalink }}"><img class="nozoom" src="{{ .RelPermalink }}/featured.svg"/></a></div>
+{{ end }}
+</div>
+<div class="grid grid-cols-3 place-content-center gap-4">
+{{ range $pages }}
+    <div><p>{{ .Description }}</p></div>
+{{ end }}
+</div>

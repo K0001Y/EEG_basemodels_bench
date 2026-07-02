@@ -1,0 +1,148 @@
+name: Build website
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'website/**'
+      - 'results/**'
+      - 'algorithms/**'
+
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Default to bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Concatenate JSONs
+        run: |
+          result="./results.json"
+          echo "{}" > "$result"
+          for algorithm_dir in ./results/*/; do
+            algorithm_name=$(basename "$algorithm_dir")
+            algorithm_obj="{}"
+            for dataset_file in "$algorithm_dir"*.json; do
+              dataset_name=$(basename "$dataset_file" .json)
+              algorithm_obj=$(jq --arg dataset_name "$dataset_name" \
+                                  --argjson dataset_content "$(cat "$dataset_file")" \
+                                  '. + {($dataset_name): $dataset_content}' <<< "$algorithm_obj")
+            done
+            jq --arg algorithm_name "$algorithm_name" \
+              --argjson algorithm_obj "$algorithm_obj" \
+              '. + {($algorithm_name): $algorithm_obj}' <<< "$(<"$result")" > "$result"
+          done
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with: 
+          name: results
+          path: ./results.json
+
+  build-hugo:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.160.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+            hugo-version: '0.160.0'
+            extended: true
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Install Node packages
+        run: |
+          cd website/themes/blowfish
+          npm ci
+      - name: Build TailwindCSS
+        run: |
+          cd website
+          mkdir -p ./assets/css/
+          mv tailwind.config.js ./themes/blowfish/tailwind.config.js
+          npx @tailwindcss/cli -c ./themes/blowfish/tailwind.config.js -i ./themes/blowfish/assets/css/main.css -o ./assets/css/compiled/main.css --jit
+      - name: Build Hugo
+        run: |
+          cd website
+          hugo --minify
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugo
+          path: website/public/
+
+  deploy:
+    needs: [build, build-hugo]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Hugo project
+        uses: actions/download-artifact@v4
+        with:
+          name: hugo
+          path: website/public/
+
+      - name: Download results.json
+        uses: actions/download-artifact@v4
+        with:
+          name: results
+          path: website/public/
+      
+      - name: Copy algorithms
+        run: |
+          cp -r ./algorithms website/public/algorithms
+
+      - name: Rename algorithms
+        run: |
+          for algo in website/public/algorithms/*; do
+            IMAGE=$(grep '^image: ' $algo | sed 's/^image: \+//' | tr -d \'\")
+            ALGO_NAME=$(echo "$IMAGE" | iconv -t ascii//TRANSLIT | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
+            mv $algo website/public/algorithms/$ALGO_NAME.yaml
+          done
+
+      - name: Copy challenge algorithms
+        run: |
+          cp -r ./challenge_algorithms website/public/challenge_algorithms
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'website/public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

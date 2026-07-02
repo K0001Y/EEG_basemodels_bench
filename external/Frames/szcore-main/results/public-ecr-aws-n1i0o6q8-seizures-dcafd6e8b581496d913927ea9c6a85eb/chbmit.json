@@ -1,0 +1,22 @@
+{
+  "sample_results": {
+    "sensitivity": 1.0,
+    "sensitivity_std": 0.0,
+    "precision": 0.004316391061681061,
+    "precision_std": 0.00435499432512923,
+    "f1": 0.008558521992831093,
+    "f1_std": 0.008569134885271402,
+    "fpRate": 85999.23988268305,
+    "fpRate_std": 383.6392163547309
+  },
+  "event_results": {
+    "sensitivity": 1.0,
+    "sensitivity_std": 0.0,
+    "precision": 0.024024495737729534,
+    "precision_std": 0.029032047966104358,
+    "f1": 0.045469766663529525,
+    "f1_std": 0.05125762839062653,
+    "fpRate": 278.98518507953725,
+    "fpRate_std": 9.305120791758036
+  }
+}

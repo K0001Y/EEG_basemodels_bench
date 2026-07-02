@@ -1,0 +1,47 @@
+---
+# Description of a seizure detection algorithm
+title: "EEGWaveNet: Multiscale CNN-Based Spatiotemporal Feature Extraction for EEG Seizure Detection"
+short_title: "EEGWaveNet 2021"
+image: "ghcr.io/esl-epfl/eegwavenet_2021:latest"
+authors:
+  - given_names: Punnawish
+    family_names: Thuwajit
+    affiliation: Vidyasirimedhi Institute of Science and Technology
+  - given_names: Clément
+    family_names: Samanos
+    affiliation: EPFL-ESL
+  - given_names: Jonathan
+    family_names: Dan
+    email: jonathan.dan@epfl.ch
+    affiliation: EPFL-ESL
+version: 0.1
+date_released: "2022-08-22"
+abstract: >
+  The detection of seizures in epileptic patients via Electroencephalography 
+  (EEG) is an essential key to medical treatment. With the advances in deep 
+  learning, many approaches are proposed to tackle this problem. However, 
+  concerns such as performance, speed, and subject-independency should still be 
+  considered for practical application. Thus, we propose EEGWaveNet, a novel 
+  end-to-end multiscale convolutional neural network designed to address 
+  epileptic seizure detection. Our network utilizes trainable depth-wise 
+  convolutions as discriminative filters to simultaneously gather features from 
+  each EEG channel and separate the signal into multiscale resolution. Then, 
+  the spatial-temporal features are extracted from each scale for further 
+  classification. To demonstrate the effectiveness of EEGWaveNet, we evaluate 
+  the model in three datasets: CHB-MIT, TUSZ, and BONN. From the results, 
+  EEGWaveNet’s performance is comparable to other baseline methods in the 
+  subject-dependent approach and outperforms the others in subject-independent 
+  approaches. EEGWaveNet also has time complexity comparable to the compact 
+  EEGNet-8,2. Moreover, we transfer the model trained from the 
+  subject-independent approach and fine-tune it with a 1-h recording, 
+  significantly improving sensitivity and F1-score (Binary) compared to without 
+  fine-tuning. This article indicates the possibility of further developing 
+  this model and the fine-tuning methodology toward healthcare 5.0, where the 
+  AI aid clinicians in a manner of man–machine collaboration.
+  This algorithm was trained on Physionet CHB-MIT Scalp EEG dataset v1.0.0.
+license: MIT
+repository: https://github.com/esl-epfl/eegwavenet_2021
+
+# List all datasets that were used to train this algorithm
+datasets:
+  - Physionet CHB-MIT Scalp EEG dataset

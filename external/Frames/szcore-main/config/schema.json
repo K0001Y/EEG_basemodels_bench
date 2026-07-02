@@ -1,0 +1,144 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "additionalProperties": false,
+    "definitions": {
+        "dataset": {
+            "description": "A dataset used for training the algorithm.",
+            "minLength": 1,
+            "type": "string"
+        },
+        "date": {
+            "$comment": "Note to tool implementers: it is necessary to cast YAML 'date' objects to string objects when validating against this schema.",
+            "examples": [
+                "1900-01-01",
+                "2020-12-31"
+            ],
+            "format": "date",
+            "pattern": "^[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+            "type": "string"
+        },
+        "email": {
+            "description": "An email address.",
+            "pattern": "^[\\S]+@[\\S]+\\.[\\S]{2,}$",
+            "type": "string"
+        },
+        "image": {
+            "pattern": "^.+/.+:.+$",
+            "type": "string"
+        },
+        "license": {
+            "description": "An SPDX license identifier or a custom license.",
+            "minLength": 1,
+            "type": "string"
+        },
+        "person": {
+            "additionalProperties": false,
+            "description": "A person.",
+            "properties": {
+                "affiliation": {
+                    "description": "The person's affilitation.",
+                    "minLength": 1,
+                    "type": "string"
+                },
+                "email": {
+                    "$ref": "#/definitions/email",
+                    "description": "The person's email address."
+                },
+                "family_names": {
+                    "description": "The person's family names.",
+                    "minLength": 1,
+                    "type": "string"
+                },
+                "given_names": {
+                    "description": "The person's given names.",
+                    "minLength": 1,
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "url": {
+            "format": "uri",
+            "pattern": "^(https|http|ftp|sftp)://.+",
+            "type": "string"
+        },
+        "version": {
+            "anyOf": [
+                {
+                    "minLength": 1,
+                    "type": "string"
+                },
+                {
+                    "type": "number"
+                }
+            ]
+        }
+    },
+    "properties": {
+        "abstract": {
+            "description": "A description of the software or dataset.",
+            "minLength": 1,
+            "type": "string"
+        },
+        "authors": {
+            "description": "The author(s) of the software or dataset.",
+            "items": {
+                "$ref": "#/definitions/person"},
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+        },
+        "datasets": {
+            "description": "A dataset used for training the algorithm.",
+            "items": {
+                "$ref": "#/definitions/dataset"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+        },
+        "date_released": {
+            "$ref": "#/definitions/date",
+            "description": "The date the work has been released."
+        },
+        "image": {
+            "$ref": "#/definitions/image",
+            "description": "The URL to a docker image on an image registry."
+        },
+        "license": {
+            "$ref": "#/definitions/license"
+        },
+        "repository": {
+            "$ref": "#/definitions/url",
+            "description": "The URL of the software or dataset in a repository (when the repository is neither a source code repository nor a build artifact repository).",
+            "examples": [
+                "https://edoc.hu-berlin.de/handle/18452/23016",
+                "https://ascl.net/2105.013"
+            ]
+        },
+        "title": {
+            "description": "The name of the software or dataset.",
+            "minLength": 1,
+            "type": "string"
+        },
+        "short_title": {
+            "description": "A short name of the software or dataset.",
+            "minLength": 1,
+            "maxLength": 20,
+            "type": "string"
+        },
+        "version": {
+            "$ref": "#/definitions/version",
+            "description": "The version of the software or dataset."
+        }
+    },
+    "required": [
+        "title",
+        "short_title",
+        "image",
+        "authors",
+        "license"
+    ],
+    "title": "Citation File Format",
+    "type": "object"
+}

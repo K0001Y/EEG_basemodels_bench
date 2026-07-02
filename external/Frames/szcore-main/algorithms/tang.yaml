@@ -1,0 +1,51 @@
+---
+# Description of a seizure detection algorithm
+title: "Self-Supervised Graph Neural Networks for Improved Electroencephalographic Seizure Analysis"
+short_title: "Self-GNN - Tang 2021"
+image: "ghcr.io/esl-epfl/tang_2021:latest"
+authors:
+  - given_names: Siyi
+    family_names: Tang
+    affiliation: Stanford Universit
+  - given_names: Clément
+    family_names: Samanos
+    affiliation: EPFL-ESL
+  - given_names: Jonathan
+    family_names: Dan
+    email: jonathan.dan@epfl.ch
+    affiliation: EPFL-ESL
+version: 0.1
+date_released: "2022-04-22"
+abstract: >
+  Automated seizure detection and classification from electroencephalography
+  (EEG) can greatly improve seizure diagnosis and treatment. However, several
+  modeling challenges remain unaddressed in prior automated seizure detection
+  and classification studies: (1) representing non-Euclidean data structure in EEGs,
+  (2) accurately classifying rare seizure types, and (3) lacking a quantitative inter-
+  pretability approach to measure model ability to localize seizures. In this study,
+  we address these challenges by (1) representing the spatiotemporal dependencies
+  in EEGs using a graph neural network (GNN) and proposing two EEG graph
+  structures that capture the electrode geometry or dynamic brain connectivity, (2)
+  proposing a self-supervised pre-training method that predicts preprocessed sig-
+  nals for the next time period to further improve model performance, particu-
+  larly on rare seizure types, and (3) proposing a quantitative model interpretabil-
+  ity approach to assess a model's ability to localize seizures within EEGs. When
+  evaluating our approach on seizure detection and classification on a large pub-
+  lic dataset (5,499 EEGs), we find that our GNN with self-supervised pre-training
+  achieves 0.875 Area Under the Receiver Operating Characteristic Curve on seizure
+  detection and 0.749 weighted F1-score on seizure classification, outperforming
+  previous methods for both seizure detection and classification. Moreover, our
+  self-supervised pre-training strategy significantly improves classification of rare
+  seizure types (e.g. 47 points increase in combined tonic seizure accuracy over
+  baselines). Furthermore, quantitative interpretability analysis shows that our GNN
+  with self-supervised pre-training precisely localizes 25.4% focal seizures, a 21.9
+  point improvement over existing CNNs. Finally, by superimposing the identified
+  seizure locations on both raw EEG signals and EEG graphs, our approach could
+  provide clinicians with an intuitive visualization of localized seizure regions.
+  This model was trained on TUH EEG Seizure Corpus v2.0.3
+license: MIT
+repository: https://github.com/esl-epfl/tang_2021
+
+# List all datasets that were used to train this algorithm
+datasets:
+  - "TUH Seizure Corpus"

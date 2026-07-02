@@ -1,0 +1,43 @@
+---
+# Description of a seizure detection algorithm
+title: "Gotman - Automatic recognition of epileptic seizures in the EEG (1982)" 
+short_title: "Gotman 1982"
+image: "ghcr.io/esl-epfl/gotman_1982:latest"
+authors:
+  - given_names: Jean
+    family_names: Gotman
+    affiliation: Montreal Neurological Institute
+  - given_names: Clément
+    family_names: Samanos
+    affiliation: EPFL-ESL
+  - given_names: Jonathan
+    family_names: Dan
+    email: jonathan.dan@epfl.ch
+    affiliation: EPFL-ESL
+version: 0.1
+date_released: "1982-01-01"
+abstract: >
+  During prolonged EEG monitoring of epileptic patients, the continuous EEG 
+  tracing may be replaced by a selective recording of ictal and interictal 
+  epileptic activity. We have previously described methods for the EEG 
+  recording of seizures with overt clinical manifestations and for the automatic 
+  detection of spikes. This paper describes a method for the automatic detection 
+  of seizures in the EEG, independently of the presence of clinical signs; it is 
+  based on the decomposition of the EEG into elementary waves and the detection 
+  of paroxysmal bursts of rhythmic activity having a frequency between 3 and 20 
+  c/sec. Simple procedures are used to measure the amplitude of waves relative 
+  to the background, their duration and rhythmicity. The evaluation of the 
+  method on 24 surface recordings (average duration 12.4 h) and 44 recordings 
+  from intracerebral electrodes (average duration 18.7 h) indicated that it was 
+  capable of recognizing numerous types of seizures. False detections due to 
+  non-epileptiform rhythmic EEG bursts and to artefacts were quite frequent but 
+  were not a serious problem because they did not unduly lengthen the EEG 
+  tracing and they could be easily identified by the electroencephalographer. 
+  The program can perform on-line and simultaneously the automatic recognition 
+  of spikes and of seizures in 16 channels."
+license: GPL-3.0
+repository: https://github.com/esl-epfl/gotman_1982
+
+# List all datasets that were used to train this algorithm
+datasets:
+  - "Gotman 1982"

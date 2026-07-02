@@ -1,0 +1,82 @@
+name: PR checks on algorithm submission
+
+on:
+  pull_request:
+    paths:
+      - 'algorithms/*.yaml'
+  workflow_dispatch:
+
+jobs:
+
+  check_yaml:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}-algo-checks:main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.github_token }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: find algorithm files
+        run: |
+          {
+            echo 'FILELIST<<EOF'
+            git diff --name-only HEAD^1 HEAD | grep -E 'algorithms/.*\.yaml$' | tr -d \'\"
+            echo EOF
+          }  >> "$GITHUB_ENV"
+
+      - name: Convert and validate using jsonschema
+        run: |
+          for algo in ${FILELIST}; do
+            yq -o json $algo > algo.json \
+            && jsonschema-cli -i algo.json "config/schema.json"
+            rm algo.json
+          done
+
+  check_image:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: find algorithm files
+        run: |
+          {
+            echo 'FILELIST<<EOF'
+            git diff --name-only HEAD^1 HEAD | grep -E 'algorithms/.*\.yaml$' | tr -d \'\"
+            echo EOF
+          }  >> "$GITHUB_ENV"
+
+      - name: Pull image
+        run: |
+          for algo in ${FILELIST}; do 
+            IMAGE=$(grep '^image: ' $algo | sed 's/^image: \+//' | tr -d \'\")
+            if ! docker pull $IMAGE ; then
+              echo "Cannot pull image: $IMAGE"
+              exit 1
+            fi
+          done
+
+      - name: Check output
+        run: |
+          HEADER_REGEX='onset	duration	eventType	confidence	channels	dateTime	recordingDuration'
+
+          for algo in ${FILELIST}; do 
+            IMAGE=$(grep '^image: ' $algo | sed 's/^image: \+//' | tr -d \'\")
+            OUT=$(tr -cd '[:alnum:]' < <(echo $IMAGE) )
+            echo "running: $IMAGE"
+            docker run -v ./tests/data:/data -v /tmp:/output -e INPUT=unipolar.edf -e OUTPUT="${OUT}.tsv" $IMAGE
+            if ! [[ $(head -n1 "/tmp/${OUT}.tsv") =~ "$HEADER_REGEX" ]]; then
+              echo "Output does not have the expected header"
+              exit 1
+            fi
+          done
+

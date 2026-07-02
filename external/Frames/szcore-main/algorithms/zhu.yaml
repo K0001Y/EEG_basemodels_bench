@@ -1,0 +1,46 @@
+---
+# Description of a seizure detection algorithm
+title: "Automated Seizure Detection using Transformer Models on Multi-Channel EEGs" 
+short_title: "Zhu Transformer 2023"
+image: "ghcr.io/esl-epfl/zhu_2023:latest"
+authors:
+  - given_names: Yuanda
+    family_names: Zhu
+    affiliation: Georgia Institute of Technology
+  - given_names: Clément
+    family_names: Samanos
+    affiliation: EPFL-ESL
+  - given_names: Jonathan
+    family_names: Dan
+    email: jonathan.dan@epfl.ch
+    affiliation: EPFL-ESL
+version: 0.1
+date_released: "2023-11-14"
+abstract: >
+  Epilepsy is a prevalent neurological disorder characterized by recurring 
+  seizures, affecting approximately 50 million individuals globally. Given the 
+  potential severity of the associated complications, early and accurate 
+  seizure detection is crucial. In clinical practice, scalp 
+  electroencephalograms (EEGs) are non-invasive tools widely used in seizure 
+  detection and localization, aiding in the classification of seizure types. 
+  However, manual EEG annotation is labor-intensive, costly, and suffers from 
+  low inter-rater agreement, necessitating automated approaches. To address 
+  this, we introduce a novel deep learning framework, combining a convolutional 
+  neural network (CNN) module for temporal and spatial feature extraction from 
+  multi-channel EEG data, and a transformer encoder module to capture long-term 
+  sequential information. We conduct extensive experiments on a public EEG 
+  seizure detection dataset, achieving an unweighted average F1 score of 0.731, 
+  precision of 0.724, and recall (sensitivity) of 0.744. We further replicate 
+  several EEG analysis pipelines from literature and demonstrate that our 
+  pipeline outperforms, current state-of-the-art approaches. This work provides 
+  a significant step forward in automated seizure detection. By enabling a more 
+  effective and efficient diagnostic tool, it has the potential to 
+  significantly impact clinical practice, optimizing patient care and outcomes 
+  in epilepsy treatment.
+  This model was trained on TUH EEG Seizure Corpus v2.0.3
+license: MIT
+repository: https://github.com/esl-epfl/zhu_2023
+
+# List all datasets that were used to train this algorithm
+datasets:
+  - TUH Seizure Corpus
